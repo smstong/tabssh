@@ -3,23 +3,31 @@
 function print_bash_completion()
 {
 cat << "EOF"
+
+_tabssh_words=()
+
+function _tabssh_read_config()
+{
+	local _tabssh_config=~/.tabssh
+	local serverName
+	while read line
+	do
+		serverName=$(echo $line | cut -d' ' -f1) 
+		_tabssh_words+=("$serverName")
+	done < ${_tabssh_config}
+}
+
 function _tabssh_completion()
 {
 	if [[ "${#COMP_WORDS[@]}" != "2" ]]; then
 		return
 	fi
 
-	local _tabssh_config=~/.tabssh
-	local words=()
-	local serverName
+	if [[ ${#_tabssh_words[@]} -eq 0 ]]; then
+		_tabssh_read_config
+	fi
 
-	while read line
-	do
-		serverName=$(echo $line | cut -d' ' -f1) 
-		words+=("$serverName")
-	done < ${_tabssh_config}
-
-	COMPREPLY=($(compgen -W "${words[*]}" "${COMP_WORDS[1]}"))
+	COMPREPLY=($(compgen -W "${_tabssh_words[*]}" "${COMP_WORDS[1]}"))
 }
 
 complete -F _tabssh_completion tabssh

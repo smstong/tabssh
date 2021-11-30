@@ -5,7 +5,6 @@ function print_bash_completion()
 cat << "EOF"
 
 _tabssh_words=()
-
 function _tabssh_read_config()
 {
 	local _tabssh_config=~/.tabssh
@@ -22,15 +21,12 @@ function _tabssh_completion()
 	if [[ "${#COMP_WORDS[@]}" != "2" ]]; then
 		return
 	fi
-
-	if [[ ${#_tabssh_words[@]} -eq 0 ]]; then
-		_tabssh_read_config
-	fi
-
 	COMPREPLY=($(compgen -W "${_tabssh_words[*]}" "${COMP_WORDS[1]}"))
 }
 
+_tabssh_read_config
 complete -F _tabssh_completion tabssh
+
 EOF
 }
 

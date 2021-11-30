@@ -1,0 +1,50 @@
+#!/bin/bash
+
+function print_bash_completion()
+{
+cat << "EOF"
+function _tabssh_completion()
+{
+	if [[ "${#COMP_WORDS[@]}" != "2" ]]; then
+		return
+	fi
+
+	local _tabssh_config=~/.tabssh
+	local words=()
+	local serverName
+
+	while read line
+	do
+		serverName=$(echo $line | cut -d' ' -f1) 
+		words+=("$serverName")
+	done < ${_tabssh_config}
+
+	COMPREPLY=($(compgen -W "${words[*]}" "${COMP_WORDS[1]}"))
+}
+
+complete -F _tabssh_completion tabssh
+EOF
+}
+
+function usage()
+{
+	echo -e "Usage: \n\t$(basename $0) [user@host | completion]"
+	echo
+	echo -e 'Notes: \n\tThe completion reads ~/.tabssh file that contains'
+	echo -e '\tuser@host each line.'
+}
+
+############################ main ##########################
+case $1 in
+"completion")
+	print_bash_completion
+	exit
+	;;
+"")
+	usage
+	exit
+	;;
+*)
+	tmux new-window -n $1 ssh $1
+	;;
+esac

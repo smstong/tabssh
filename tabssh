@@ -64,6 +64,18 @@ function usage()
 	echo -e '\tuser@host each line.'
 }
 
+function new_ssh_session()
+{
+	if [[ "$TERM" == "screen" && -n "$TMUX" ]]; then
+		tmux new-window -n $1 ssh $1 
+	else
+		local session_name="tabssh"
+		tmux new-session -d -s $session_name -n $session_name
+		tmux new-window -n $1 ssh $1
+		tmux attach-session -d -t $session_name
+	fi
+}
+
 ############################ main ##########################
 case $1 in
 "completion")
@@ -75,6 +87,6 @@ case $1 in
 	exit
 	;;
 *)
-	tmux new-window -n $1 ssh $1
+	new_ssh_session "$@"
 	;;
 esac

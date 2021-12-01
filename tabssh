@@ -7,13 +7,27 @@ cat << "EOF"
 _tabssh_words=()
 function _tabssh_read_config()
 {
+	# read ~/.tabssh
 	local _tabssh_config=~/.tabssh
 	local serverName
-	while read line
-	do
-		serverName=$(echo $line | cut -d' ' -f1) 
-		_tabssh_words+=("$serverName")
-	done < ${_tabssh_config}
+	local line
+	if [[ -r ${_tabssh_config} ]]; then
+		while read line
+		do
+			serverName=$(echo $line | cut -d' ' -f1) 
+			_tabssh_words+=("$serverName")
+		done < ${_tabssh_config}
+	fi
+	
+	# read ~/.ssh/known_hosts
+	local _tabssh_config=~/.ssh/known_hosts
+	if [[ -r ${_tabssh_config} ]]; then
+		while read line
+		do
+			serverName=$(echo $line | cut -d' ' -f1 | cut -d, -f1) 
+			_tabssh_words+=("$serverName")
+		done < ${_tabssh_config}
+	fi
 }
 
 function _tabssh_completion()

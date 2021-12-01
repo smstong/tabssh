@@ -5,6 +5,18 @@ function print_bash_completion()
 cat << "EOF"
 
 _tabssh_words=()
+
+function _tabssh_words_add()
+{
+	local i
+	for i in "${_tabssh_words[@]}"
+	do
+		if [[ "$1" == "$i" ]]; then
+			return
+		fi
+	done
+	_tabssh_words+=("$1")
+}
 function _tabssh_read_config()
 {
 	# read ~/.tabssh
@@ -15,7 +27,7 @@ function _tabssh_read_config()
 		while read line
 		do
 			serverName=$(echo $line | cut -d' ' -f1) 
-			_tabssh_words+=("$serverName")
+			_tabssh_words_add "$serverName"
 		done < ${_tabssh_config}
 	fi
 	
@@ -25,7 +37,7 @@ function _tabssh_read_config()
 		while read line
 		do
 			serverName=$(echo $line | cut -d' ' -f1 | cut -d, -f1) 
-			_tabssh_words+=("$serverName")
+			_tabssh_words_add "$serverName"
 		done < ${_tabssh_config}
 	fi
 }

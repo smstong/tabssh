@@ -26,6 +26,10 @@ function _tabssh_read_config()
 	if [[ -r ${_tabssh_config} ]]; then
 		while read line
 		do
+			# skip comment lines starting with '#' and empty lines
+			if echo $line | grep -E '^[[:space:]]*(#|$)' > /dev/null 2>&1; then
+				continue
+			fi
 			serverName=$(echo $line | cut -d' ' -f1) 
 			_tabssh_words_add "$serverName"
 		done < ${_tabssh_config}
